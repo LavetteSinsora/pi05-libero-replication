@@ -240,6 +240,12 @@ def run(args: Args) -> None:
                 else:
                     saved_failure += 1
 
+            if (ep_idx + 1) % 10 == 0:
+                logging.info(
+                    f"  {task_key}: {ep_idx + 1}/{args.num_trials_per_task} trials, "
+                    f"{task_succ} successes"
+                )
+
         env.close()
         success_rate = task_succ / args.num_trials_per_task
         all_results[task_key] = {
@@ -250,6 +256,13 @@ def run(args: Args) -> None:
         total_ep += args.num_trials_per_task
         total_succ += task_succ
         logging.info(f"[{task_id+1}/{num_tasks}] {task_key}: {success_rate:.1%}")
+        if wandb_run is not None:
+            # incremental progress so the run is inspectable long before it ends
+            wandb.log({
+                f"{task_key}/success_rate": success_rate,
+                "tasks_completed": task_id + 1,
+                "running_success_rate": total_succ / total_ep,
+            })
 
     # ── aggregate + write results ─────────────────────────────────────────────
     aggregate_rate = total_succ / total_ep
