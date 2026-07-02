@@ -114,7 +114,17 @@ def run(args: Args) -> None:
 
     # ── load policy ──────────────────────────────────────────────────────────
     train_config = _config.get_config(args.config_name)
-    policy = _policy_config.create_trained_policy(train_config, args.checkpoint_dir)
+    # Always load OUR norm stats from the config's assets dir and pass them
+    # explicitly. Otherwise create_trained_policy reads norm stats from the
+    # checkpoint's own assets/ — which the pretrained pi05_base checkpoint does
+    # NOT have for our asset_id, so the baseline eval would crash. Passing them
+    # explicitly also guarantees baseline and fine-tuned runs use identical
+    # normalization, which is what makes the comparison fair.
+    data_config = train_config.data.create(train_config.assets_dirs, train_config.model)
+    norm_stats = data_config.norm_stats
+    policy = _policy_config.create_trained_policy(
+        train_config, args.checkpoint_dir, norm_stats=norm_stats
+    )
     _write_config_snapshot(exp_dir, train_config, args.checkpoint_dir)
 
     # ── wandb ────────────────────────────────────────────────────────────────
