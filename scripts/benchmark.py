@@ -122,9 +122,28 @@ def run(args: Args) -> None:
     # normalization, which is what makes the comparison fair.
     data_config = train_config.data.create(train_config.assets_dirs, train_config.model)
     norm_stats = data_config.norm_stats
-    policy = _policy_config.create_trained_policy(
-        train_config, args.checkpoint_dir, norm_stats=norm_stats
-    )
+    try:
+        policy = _policy_config.create_trained_policy(
+            train_config, args.checkpoint_dir, norm_stats=norm_stats
+        )
+    except ValueError:
+        # Pretrained base checkpoints (e.g. pi05_base) contain no lora_a/lora_b
+        # params, so loading them with a *_lora model config fails the pytree
+        # structure check. Retry with the non-LoRA variants; every other model
+        # setting and the norm stats above stay identical, keeping the
+        # baseline/fine-tuned comparison fair.
+        logging.info("checkpoint has no LoRA params — retrying with base (non-LoRA) variants")
+        base_config = dataclasses.replace(
+            train_config,
+            model=dataclasses.replace(
+                train_config.model,
+                paligemma_variant="gemma_2b",
+                action_expert_variant="gemma_300m",
+            ),
+        )
+        policy = _policy_config.create_trained_policy(
+            base_config, args.checkpoint_dir, norm_stats=norm_stats
+        )
     _write_config_snapshot(exp_dir, train_config, args.checkpoint_dir)
 
     # ── wandb ────────────────────────────────────────────────────────────────
