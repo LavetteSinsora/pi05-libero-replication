@@ -64,6 +64,10 @@ class Args:
     wandb_project: str = "pi05_libero_replication"
     wandb_enabled: bool = True
     train_step: int | None = None  # for wandb x-axis when mid-training eval
+    # Evaluate with the norm stats stored inside the checkpoint itself instead of
+    # this repo's assets. Needed for official PI checkpoints (e.g. pi05_libero),
+    # which were trained with their own normalization.
+    use_checkpoint_norm_stats: bool = False
 
 
 def _quat2axisangle(quat: np.ndarray) -> np.ndarray:
@@ -122,6 +126,15 @@ def run(args: Args) -> None:
     # normalization, which is what makes the comparison fair.
     data_config = train_config.data.create(train_config.assets_dirs, train_config.model)
     norm_stats = data_config.norm_stats
+    if args.use_checkpoint_norm_stats:
+        # None → create_trained_policy loads them from the checkpoint's assets.
+        norm_stats = None
+    elif norm_stats is None:
+        raise FileNotFoundError(
+            f"norm stats for config {args.config_name} not found under "
+            f"{train_config.assets_dirs} — run compute_norm_stats.py and commit "
+            "assets/, or pass --use-checkpoint-norm-stats."
+        )
     try:
         policy = _policy_config.create_trained_policy(
             train_config, args.checkpoint_dir, norm_stats=norm_stats
