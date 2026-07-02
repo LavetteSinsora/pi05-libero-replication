@@ -8,13 +8,13 @@ Usage
   python scripts/benchmark.py \
     --config_name pi05_libero \
     --checkpoint_dir gs://openpi-assets/checkpoints/pi05_base \
-    --exp_dir experiments/pi05_base_benchmark
+    --exp_dir experiments/pi05_libero/pi05_base_benchmark
 
 # Fine-tuned checkpoint at step 5000:
   python scripts/benchmark.py \
     --config_name pi05_libero_object_lora \
-    --checkpoint_dir checkpoints/pi05_libero_object_lora/masked_loss_summed_subsampling/5000 \
-    --exp_dir experiments/pi05_libero_object_lora/masked_loss_summed_subsampling/step_5000
+    --checkpoint_dir checkpoints/pi05_libero/pi05_libero_object_lora/masked_loss_summed_subsampling/5000 \
+    --exp_dir experiments/pi05_libero/pi05_libero_object_lora/masked_loss_summed_subsampling/step_5000
 
 Run from the repo root. Requires the openpi venv or `pip install -e third_party/openpi`.
 """
@@ -49,8 +49,8 @@ MAX_STEPS = 280          # longest libero_object demo has 254 steps
 NUM_STEPS_WAIT = 10      # let objects settle before acting
 REPLAN_STEPS = 5         # execute this many actions from each predicted chunk
 RESIZE = 224
-MAX_FAILURE_VIDEOS = 3
-MAX_SUCCESS_VIDEOS = 1
+MAX_FAILURE_VIDEOS = 5
+MAX_SUCCESS_VIDEOS = 3
 DUMMY_ACTION = [0.0] * 6 + [-1.0]
 
 
