@@ -138,6 +138,7 @@ def run(args: Args) -> None:
 
     all_results = {}
     total_ep, total_succ = 0, 0
+    video_log: dict = {}  # accumulated for a single wandb.log call at the end
 
     for task_id in range(num_tasks):
         task = suite.get_task(task_id)
@@ -198,11 +199,13 @@ def run(args: Args) -> None:
             )
             if save_video and frames:
                 ep_label = f"ep_{ep_idx:02d}.mp4"
+                video_path = video_dir / suffix / ep_label
                 imageio.mimwrite(
-                    video_dir / suffix / ep_label,
+                    video_path,
                     [np.asarray(f) for f in frames],
                     fps=10,
                 )
+                video_log[f"video/{task_key}/{suffix}/{ep_label}"] = str(video_path)
                 if done:
                     saved_success += 1
                 else:
@@ -232,6 +235,7 @@ def run(args: Args) -> None:
         log_dict = {"aggregate_success_rate": aggregate_rate}
         for k, v in all_results.items():
             log_dict[f"{k}/success_rate"] = v["success_rate"]
+        log_dict.update({k: wandb.Video(v, fps=10, format="mp4") for k, v in video_log.items()})
         if args.train_step is not None:
             wandb.log(log_dict, step=args.train_step)
         else:
