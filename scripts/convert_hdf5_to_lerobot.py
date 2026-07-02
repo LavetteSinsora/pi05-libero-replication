@@ -84,7 +84,7 @@ from libero.libero.envs import OffScreenRenderEnv
 # ── paths ───────────────────────────────────────────────────────────────────
 PROJECT_ROOT   = Path(__file__).resolve().parents[1]
 HDF5_DIR       = PROJECT_ROOT / "data" / "libero" / "libero_object"
-OUTPUT_ROOT    = PROJECT_ROOT / "data" / "lerobot" / "pi05-libero"
+OUTPUT_ROOT    = PROJECT_ROOT / "data" / "lerobot" / "pi05_libero"
 CANONICAL_NAME = "libero_object_canonical"
 
 RENDER_H  = 256
@@ -122,7 +122,7 @@ def render_canonical():
 
     # repo_id must include the org prefix for lerobot; OUTPUT_ROOT is the root
     dataset = LeRobotDataset.create(
-        repo_id=f"pi05-libero/{CANONICAL_NAME}",
+        repo_id=f"pi05_libero/{CANONICAL_NAME}",
         root=OUTPUT_ROOT / CANONICAL_NAME,
         robot_type="panda",
         fps=FPS,

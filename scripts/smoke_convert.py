@@ -13,7 +13,7 @@ from libero.libero.envs import OffScreenRenderEnv
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 HDF5_DIR     = PROJECT_ROOT / "data" / "libero" / "libero_object"
 OUTPUT_ROOT  = PROJECT_ROOT / "data" / "lerobot_smoke"
-REPO_ID      = "pi05-libero/libero_object"
+REPO_ID      = "pi05_libero/libero_object"
 
 RENDER_H  = 256
 RENDER_W  = 256
